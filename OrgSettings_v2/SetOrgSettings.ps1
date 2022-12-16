@@ -2,7 +2,6 @@
 # and it SHOULD find the artifact uploaded by the other script
 # I might need to mess around with paths to get this 
 # fully working in a pipeline context..
-. $PSScriptRoot\Modules\Functions.ps1
 # if you get a "systemInt32" type error when setting a field..
 # add it to the org_picklistfields list. I occasionally find one I missed.
 param 
@@ -12,6 +11,7 @@ param
     [Parameter(Mandatory = $true, HelpMessage = "crmURL")] [String]$crmURL,
     [Parameter(Mandatory = $true, HelpMessage = "User GuID to impersonate")][String]$impersonation_Guid
 )
+. $PSScriptRoot\Modules\Functions.ps1
 $orgSettingsJSON = (Get-ChildItem .\jsonExport\).Name
 # import modules
 InstallAndImport -PSModules "Microsoft.Xrm.Tooling.CrmConnector.PowerShell", "Microsoft.Xrm.Data.PowerShell"

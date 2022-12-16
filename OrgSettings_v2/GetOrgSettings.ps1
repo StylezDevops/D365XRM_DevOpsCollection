@@ -1,12 +1,12 @@
-# import the file of useful re-usable functions
-. $PSScriptRoot\Modules\Functions.ps1
-param 
+param
 ( 
     [Parameter(Mandatory = $true, HelpMessage = "clientId")] [String]$clientId,
     [Parameter(Mandatory = $true, HelpMessage = "clientSecret")] [String]$clientSecret,
     [Parameter(Mandatory = $true, HelpMessage = "crmURL")] [String]$crmURL,
     [Parameter(Mandatory = $true, HelpMessage = "Tenant ID")] [String]$tenantId
 )
+# import the file of useful re-usable functions
+. $PSScriptRoot\Modules\Functions.ps1
 # install and import modules
 InstallAndImport -PSModules "Microsoft.Xrm.Tooling.CrmConnector.PowerShell"
 # get access token
