@@ -1,9 +1,3 @@
-# Drop this as a task in a "deploy" job
-# and it SHOULD find the artifact uploaded by the other script
-# I might need to mess around with paths to get this 
-# fully working in a pipeline context..
-# if you get a "systemInt32" type error when setting a field..
-# add it to the org_picklistfields list. I occasionally find one I missed.
 param 
 ( 
     [Parameter(Mandatory = $true, HelpMessage = "ClientId")] [String]$ClientId,
