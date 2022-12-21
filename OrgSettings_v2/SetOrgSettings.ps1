@@ -13,8 +13,8 @@ InstallAndImport -PSModules "Microsoft.Xrm.Tooling.CrmConnector.PowerShell", "Mi
 XrmConnect -ClientId $ClientId -ClientSecret $ClientSecret -crmURL $crmURL -impersonation_Guid $impersonation_Guid #$impersonation_Guid is needed here
 # get the json
 $json = Get-Content .\jsonExport\$orgSettingsJSON -Encoding UTF8 | Out-String | ConvertFrom-Json
-$picklistFields = Get-Content ".\dataTypes\org_picklistfields"
-$dateTimeFields = Get-Content ".\dataTypes\org_dateTimeFields"
+$picklistFields = Get-Content "$PSScriptRoot\dataTypes\org_picklistfields"
+$dateTimeFields = Get-Content "$PSScriptRoot\dataTypes\org_dateTimeFields"
 $orgid = (Invoke-CrmWhoAmI).OrganizationId
 # Convert PSCustomObject to hashtable
 $hashtable = @{}

@@ -1,9 +1,10 @@
 # XRM functions
 function InstallAndImport {
-    # InstallAndImport -PSModules "SomeModule", "SomeOtherModule", "AnotherModule"
     param 
     ( 
-        [Parameter(Mandatory = $true, HelpMessage = "Array of Powershell Modules")] [Object]$PSModules)
+        [Parameter(Mandatory = $true, HelpMessage = "Array of Powershell Modules")] [Object]$PSModules
+    )
+    # InstallAndImport -PSModules "SomeModule", "SomeOtherModule", "AnotherModule"
     try {
         # Import required module(s)
         $PSModules | Foreach-Object {
@@ -18,9 +19,6 @@ function InstallAndImport {
     }
 }
 function XrmConnect {
-    # I did this because I was fedup of passing a second command to have to impersonate.
-    # this modification means i can pass impersonation_guid or not when connecting.
-    # XrmConnect -clientId $clientId -clientSecret $clientSecret -crmURL $crmURL -impersonation_Guid $impersonation_Guid #$impersonation_Guid is optional
     param 
     ( 
         [Parameter(Mandatory = $true, HelpMessage = "clientId")] [String]$clientId,
@@ -28,6 +26,9 @@ function XrmConnect {
         [Parameter(Mandatory = $true, HelpMessage = "crmURL")] [String]$crmURL,
         [Parameter(Mandatory = $false, HelpMessage = "User GuID to impersonate")][String]$impersonation_Guid
     )
+    # I did this because I was fedup of passing a second command to have to impersonate.
+    # this modification means i can pass impersonation_guid or not when connecting.
+    # XrmConnect -clientId $clientId -clientSecret $clientSecret -crmURL $crmURL -impersonation_Guid $impersonation_Guid #$impersonation_Guid is optional
     Write-Output "Connecting to CRM"
     # Force TLS 1.2
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
@@ -49,15 +50,15 @@ function XrmConnect {
     return $conn 
 }
 function WhatIsThePrimaryKey() {
+    param(        
+        [Parameter(Mandatory = $true, HelpMessage = "Entity Name")] [object]$entityName
+    )
     # Microsoft completely ballsed up the naming of the primary key
     # and appear to have forgotten the naming convention at 3 different points in time
     # - when they were developing "activities", "usersettings" and "systemforms"
     # the activities one kind of makes sense. The other 2 are just stupid.
     #
     # WhatIsThePrimaryKey -entityName someEntity
-    param(        
-        [Parameter(Mandatory = $true, HelpMessage = "Entity Name")] [object]$entityName
-    )
     $OOBActivities = @(
         "opportunityclose",
         "socialactivity",
@@ -94,10 +95,7 @@ function WhatIsThePrimaryKey() {
     $primaryKey
 }
 
-function XRM-APIgetAccessToken {
-    # $newToken = XRM-APIgetAccessToken -ClientId $clientId -ClientSecret $clientSecret -crmURL $crmURL -tenantId $tenantId
-    # sometimes can't be arsed messing about and this is just easier to connect. Also - I can easily get stuff in json format
-    # like this direct from the CRM and use Invoke-RestMthod to pull it right into a pscustomobject
+function GetAccessTokenXRMAPI {
     param
     ( 
         [Parameter(Mandatory = $true, HelpMessage = "clientId")] [String]$clientId,
@@ -105,6 +103,9 @@ function XRM-APIgetAccessToken {
         [Parameter(Mandatory = $true, HelpMessage = "crmURL")] [String]$crmURL,
         [Parameter(Mandatory = $true, HelpMessage = "Tenant ID")] [String]$tenantId
     )
+    # $newToken = XRM-APIgetAccessToken -ClientId $clientId -ClientSecret $clientSecret -crmURL $crmURL -tenantId $tenantId
+    # sometimes can't be arsed messing about and this is just easier to connect. Also - I can easily get stuff in json format
+    # like this direct from the CRM and use Invoke-RestMthod to pull it right into a pscustomobject
     $oAuthTokenEndpoint = 'https://login.microsoftonline.com/' + $tenantId + '/oauth2/v2.0/token'
     $authBody = 
     @{
@@ -131,16 +132,16 @@ function XRM-APIgetAccessToken {
     }
     return $authResponse
 }
-function XRM-APIqueryEntity {
-    # query entities once connected to WebAPI with authToken
-    # example: $orgObject = (XRM-APIqueryEntity -crmURL $crmURL -entityName "organization" -authResponse $newToken).value
-    # and pull the results right back into a PSCustomObject (invoke-restmethod)
+function queryEntityXRMAPI {
     param 
     ( 
         [Parameter(Mandatory = $true, HelpMessage = "crmURL")] [String]$crmURL,
         [Parameter(Mandatory = $true, HelpMessage = "entityName")] [String]$entityName,
         [Parameter(Mandatory = $true, HelpMessage = "Auth Resopnse")] [Object]$authResponse
     )
+    # query entities once connected to WebAPI with authToken
+    # example: $orgObject = (XRM-APIqueryEntity -crmURL $crmURL -entityName "organization" -authResponse $newToken).value
+    # and pull the results right back into a PSCustomObject (invoke-restmethod)
     if ($entityName -eq "organization") {
         $entityName = "organizations"
     }
@@ -160,11 +161,6 @@ function XRM-APIqueryEntity {
     return $apiCallRequest
 }
 function GetRecordIdWithFilter {
-    # Returns a recordID
-    #ie: to get the ID of the record where the landlordName attribute is "Fred" in the pub entity:
-    # GetRecordIdWithFilter -entityName pub -Attribute Name -operator eq -value "Fred"
-    # this will return JUST the id of the record (if it exists) -  
-    # useful for doing a quicklookup for the id to pass to 'Set-CrmRecord'
     param 
     ( 
         [Parameter(Mandatory = $true, HelpMessage = "entityName")] [String]$entityName,
@@ -172,6 +168,11 @@ function GetRecordIdWithFilter {
         [Parameter(Mandatory = $true, HelpMessage = "Filter Operator")] [String]$operator,
         [Parameter(Mandatory = $true, HelpMessage = "Filter Value")] [String]$value
     )
+    # Returns a recordID
+    #ie: to get the ID of the record where the landlordName attribute is "Fred" in the pub entity:
+    # GetRecordIdWithFilter -entityName pub -Attribute Name -operator eq -value "Fred"
+    # this will return JUST the id of the record (if it exists) -  
+    # useful for doing a quicklookup for the id to pass to 'Set-CrmRecord'    
     $entid = (WhatIsThePrimaryKey -entityName $entityName)
 
     if (![string]::IsNullOrEmpty($Attribute)) {

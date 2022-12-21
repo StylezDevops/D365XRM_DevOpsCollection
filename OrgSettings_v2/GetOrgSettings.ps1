@@ -5,14 +5,17 @@ param
     [Parameter(Mandatory = $true, HelpMessage = "crmURL")] [String]$crmURL,
     [Parameter(Mandatory = $true, HelpMessage = "Tenant ID")] [String]$tenantId
 )
+
 # import the file of useful re-usable functions
 . $PSScriptRoot\Modules\Functions.ps1
 # install and import modules
 InstallAndImport -PSModules "Microsoft.Xrm.Tooling.CrmConnector.PowerShell"
 # get access token
-$newToken = XRM-APIgetAccessToken -clientId $clientId -clientSecret $clientSecret -crmURL $crmURL -tenantId $tenantId
+$newToken = GetAccessTokenXRMAPI -clientId $clientId -clientSecret $clientSecret -crmURL $crmURL -tenantId $tenantId
 # grab the system settings from the source *donor" environment - uses Invoke-RestMethod to get a PSObject from the json
-$orgObject = (XRM-APIqueryEntity -crmURL $crmURL -entityName "organization" -authResponse $newToken).value
+Write-Host "Token is below"
+$newToken
+$orgObject = (queryEntityXRMAPI -crmURL $crmURL -entityName "organization" -authResponse $newToken).value
 $orgObject |  ForEach-Object { 
     # remove some stuff we don't need from the response object
     # some of these are read only..
